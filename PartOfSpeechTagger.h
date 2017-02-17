@@ -1,13 +1,14 @@
 #ifndef PART_OF_SPEECH_TAGGER_HEADER
 #define PART_OF_SPEECH_TAGGER_HEADER
 
-#include "HiddenMarkovModel.h"
-#include <string>
-#include <sstream>
-#include <mysql.h>
-#include <vector>
-#include <iostream>
-#include <fstream>
+#include "HiddenMarkovModel.h" //HiddenMarkovModel
+#include <string>              //string
+#include <sstream>             //stringstream
+#include <mysql.h>             //MYSQL, MYSQL_RES, MYSQL_ROW, mysql_init(), mysql_real_connect(), mysql_close(), mysql_query(), mysql_store_result(), mysql_fetch_row(), mysql_free_result()
+#include <vector>              //vector
+#include <iostream>            //cout, endl
+#include <fstream>             //ifstream, ofstream
+#include <stdarg.h>            //va_list, va_start, va_arg, va_end
 
 using namespace std;
 
@@ -261,27 +262,31 @@ class PartOfSpeechTagger
 {
 public:
 	PartOfSpeechTagger();
-	PartOfSpeechTagger(string, string, string);
-	PartOfSpeechTagger(string, string, string, string);
+	PartOfSpeechTagger(string server, string user, string password);
+	PartOfSpeechTagger(string brownCorpusDirectory, string server, string user, string password);
 
-	string ParseToString(string, bool);
-	vector<string> ParseToVector(string, bool);
+	string ParseToString(string input, bool abbreviated = true);
+	vector<string> ParseToVector(string input, bool abbreviated = true);
 
-	void InitializeDatabase(string);
+	void InitializeDatabase(string brownCorpusDirectory);
 
 private:
 	MYSQL * databaseConnectionHandle;
 
-	bool Connect(string, string, string);
+	bool Connect(string server, string user, string password);
 	void Disconnect();
 
-	bool Insert(void *, int);
-	vector<void *> Query(string, int);
+	bool Insert(void * value, int type);
+	vector<void *> Query(string query, int type);
 
-	int PartOfSpeechConstant(string);
-	string PartOfSpeech(string);
+	int PartOfSpeechConstant(string partOfSpeechString);
+	string PartOfSpeech(string partOfSpeechAbbreviatedString);
 };
 
+PartOfSpeechTagger::PartOfSpeechTagger()
+{
+	this->Connect("104.154.17.90", "root", "cgCG123!@#");
+}
 PartOfSpeechTagger::PartOfSpeechTagger(string server, string user, string password)
 {
 	this->Connect(server, user, password);
@@ -291,10 +296,6 @@ PartOfSpeechTagger::PartOfSpeechTagger(string brownCorpusDirectory, string serve
 	this->Connect(server, user, password);
 
 	this->InitializeDatabase(brownCorpusDirectory);
-}
-PartOfSpeechTagger::PartOfSpeechTagger()
-{
-	this->Connect("104.154.17.90", "root", "cgCG123!@#");
 }
 
 string PartOfSpeechTagger::ParseToString(string input, bool abbreviated = true)
