@@ -21,6 +21,7 @@ public:
 	
 	T& operator[](string label);
 	T& operator[](int index);
+	
 	Matrix<T>& operator=(const Matrix<T>& matrix);
 	
 private:
