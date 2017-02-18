@@ -285,7 +285,7 @@ private:
 
 PartOfSpeechTagger::PartOfSpeechTagger()
 {
-	this->Connect("104.154.17.90", "root", "cgCG123!@#");
+	this->Connect("<CENSORED>", "<CENSORED>", "<CENSORED>");
 }
 PartOfSpeechTagger::PartOfSpeechTagger(string server, string user, string password)
 {
