@@ -2,97 +2,15 @@
 #define PART_OF_SPEECH_TAGGER_HEADER
 
 #include "HiddenMarkovModel-StringVector.h" //HiddenMarkovModel
+#include "StringFunctions.h"                //ToUpperCase(), ToLowerCase(), InsertToString(), CharacterVectorToString(), VectorContains()
 #include <string>                           //string
 #include <sstream>                          //stringstream
 #include <mysql.h>                          //MYSQL, MYSQL_RES, MYSQL_ROW, mysql_init(), mysql_real_connect(), mysql_close(), mysql_query(), mysql_store_result(), mysql_fetch_row(), mysql_free_result()
 #include <vector>                           //vector
 #include <iostream>                         //cout, endl
 #include <fstream>                          //ifstream, ofstream
-#include <stdarg.h>                         //va_list, va_start, va_arg, va_end
 
 using namespace std;
-
-string ToUpperCase(string input)
-{
-	int length = (int)input.length();
-
-	stringstream output;
-
-	int i = -1;
-	while (++i < (int)input.length())
-	{
-		if (input[i] >= 'a' && input[i] <= 'z')
-			output << (char)(input[i] - ' ');
-		else
-			output << (char)input[i];
-	}
-
-	return output.str();
-}
-string ToLowerCase(string input)
-{
-	stringstream output;
-
-	int i = -1;
-	while (++i < (int)input.length())
-	{
-		if (input[i] >= 'A' && input[i] <= 'Z')
-			output << (char)(input[i] + ' ');
-		else
-			output << (char)input[i];
-	}
-
-	return output.str();
-}
-void ToLowerCase(string * input)
-{
-	stringstream output;
-
-	int i = -1;
-	while (++i < (int)input->length())
-	{
-		if ((*input)[i] >= 'A' && (*input)[i] <= 'Z')
-			output << (char)((*input)[i] + ' ');
-		else
-			output << (char)(*input)[i];
-	}
-
-	input->assign(output.str());
-}
-string InsertToString(string input, ...)
-{
-	int index = -1, result, count = 0;
-	while ((index = (int)input.find("%s", ++index)) != -1)
-		count++;
-
-	va_list List;
-	va_start(List, input);
-
-	for (int i = 0; i < count; i++)
-	{
-		input = input.erase((result = (int)input.find("%s")), 2);
-		input = input.insert(result, va_arg(List, char *));
-	}
-
-	va_end(List);
-
-	return input;
-}
-string CharacterVectorToString(vector<char> Input)
-{
-	stringstream ss;
-
-	for (int i = 0; i < (int)Input.size(); i++)
-		ss << Input[i];
-
-	return ss.str();
-}
-bool VectorContains(vector<string> container, string contains)
-{
-	for (int i = 0; i < (int)container.size(); i++)
-		if (container[i] == contains) return true;
-	return false;
-}
 
 struct SQLWord
 {
@@ -265,6 +183,8 @@ public:
 	PartOfSpeechTagger(string server, string user, string password);
 	PartOfSpeechTagger(string brownCorpusDirectory, string server, string user, string password);
 
+	~PartOfSpeechTagger();
+
 	string ParseToString(string input, bool abbreviated);
 	vector<string> ParseToVector(string input, bool abbreviated);
 
@@ -296,6 +216,11 @@ PartOfSpeechTagger::PartOfSpeechTagger(string brownCorpusDirectory, string serve
 	this->Connect(server, user, password);
 
 	this->InitializeDatabase(brownCorpusDirectory);
+}
+
+PartOfSpeechTagger::~PartOfSpeechTagger()
+{
+	this->Disconnect();
 }
 
 string PartOfSpeechTagger::ParseToString(string input, bool abbreviated = true)
