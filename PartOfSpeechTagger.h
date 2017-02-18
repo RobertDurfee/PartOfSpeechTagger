@@ -1,14 +1,14 @@
 #ifndef PART_OF_SPEECH_TAGGER_HEADER
 #define PART_OF_SPEECH_TAGGER_HEADER
 
-#include "HiddenMarkovModel.h" //HiddenMarkovModel
-#include <string>              //string
-#include <sstream>             //stringstream
-#include <mysql.h>             //MYSQL, MYSQL_RES, MYSQL_ROW, mysql_init(), mysql_real_connect(), mysql_close(), mysql_query(), mysql_store_result(), mysql_fetch_row(), mysql_free_result()
-#include <vector>              //vector
-#include <iostream>            //cout, endl
-#include <fstream>             //ifstream, ofstream
-#include <stdarg.h>            //va_list, va_start, va_arg, va_end
+#include "HiddenMarkovModel-StringVector.h" //HiddenMarkovModel
+#include <string>                           //string
+#include <sstream>                          //stringstream
+#include <mysql.h>                          //MYSQL, MYSQL_RES, MYSQL_ROW, mysql_init(), mysql_real_connect(), mysql_close(), mysql_query(), mysql_store_result(), mysql_fetch_row(), mysql_free_result()
+#include <vector>                           //vector
+#include <iostream>                         //cout, endl
+#include <fstream>                          //ifstream, ofstream
+#include <stdarg.h>                         //va_list, va_start, va_arg, va_end
 
 using namespace std;
 
@@ -62,7 +62,7 @@ void ToLowerCase(string * input)
 string InsertToString(string input, ...)
 {
 	int index = -1, result, count = 0;
-	while ((index = input.find("%s", ++index)) != -1)
+	while ((index = (int)input.find("%s", ++index)) != -1)
 		count++;
 
 	va_list List;
@@ -70,7 +70,7 @@ string InsertToString(string input, ...)
 
 	for (int i = 0; i < count; i++)
 	{
-		input = input.erase((result = input.find("%s")), 2);
+		input = input.erase((result = (int)input.find("%s")), 2);
 		input = input.insert(result, va_arg(List, char *));
 	}
 
@@ -265,8 +265,8 @@ public:
 	PartOfSpeechTagger(string server, string user, string password);
 	PartOfSpeechTagger(string brownCorpusDirectory, string server, string user, string password);
 
-	string ParseToString(string input, bool abbreviated = true);
-	vector<string> ParseToVector(string input, bool abbreviated = true);
+	string ParseToString(string input, bool abbreviated);
+	vector<string> ParseToVector(string input, bool abbreviated);
 
 	void InitializeDatabase(string brownCorpusDirectory);
 
@@ -323,7 +323,7 @@ vector<string> PartOfSpeechTagger::ParseToVector(string input, bool abbreviated 
 	vector<string> ObservationSequence;
 
 	int index1 = 0, index2 = 0;
-	while ((index2 = input.find(' ', index1)) != -1)
+	while ((index2 = (int)input.find(' ', index1)) != -1)
 	{
 		ObservationSequence.push_back(input.substr(index1, index2 - index1));
 		index1 = index2 + 1;
@@ -339,8 +339,11 @@ vector<string> PartOfSpeechTagger::ParseToVector(string input, bool abbreviated 
 		if (words.size() == 0)
 			return error;
 		for (int i = 0; i < (int)words.size(); i++)
+		{
 			if (!VectorContains(States, ((SQLWord *)words[i])->PartOfSpeechString))
 				States.push_back(((SQLWord *)words[i])->PartOfSpeechString);
+			delete words[i];
+		}
 	}
 
 	//All Observations Without Repeats
@@ -350,18 +353,22 @@ vector<string> PartOfSpeechTagger::ParseToVector(string input, bool abbreviated 
 			Observations.push_back(ObservationSequence[i]);
 
 	//Initialize Hidden Markov Model
-	HiddenMarkovModel Sentence(States, Observations);
 
+	HiddenMarkovModel Sentence(States, Observations);
+	
 	//Initialize the Initial Matrix
 	for (int i = 0; i < (int)States.size(); i++)
 	{
 		vector<void *> firstWords = this->Query(InsertToString("SELECT * FROM `LanguageData`.`FirstWords` WHERE `PartOfSpeechString` = '%s'", States[i].c_str()), PART_OF_SPEECH_FIRST_WORDS_TABLE);
 		if ((int)firstWords.size() == 1)
-			Sentence.Initial[States[i]] = ((SQLAdjacentWord *)firstWords[0])->Percentage;
+			Sentence.Initial[(char *)States[i].c_str()] = ((SQLAdjacentWord *)firstWords[0])->Percentage;
 		else if ((int)firstWords.size() == 0)
-			Sentence.Initial[States[i]] = 0;
+			Sentence.Initial[(char *)States[i].c_str()] = 0;
 		else
 			return error;
+
+		for (int j = 0; j < (int)firstWords.size(); j++)
+			delete firstWords[j];
 	}
 
 	//Initialize the Emission Matrix
@@ -372,11 +379,14 @@ vector<string> PartOfSpeechTagger::ParseToVector(string input, bool abbreviated 
 			vector<void *> words = this->Query(InsertToString("SELECT * FROM `LanguageData`.`Words` WHERE `PartOfSpeechString` = '%s' AND `Word` = '%s'", States[i].c_str(), Observations[j].c_str()), PART_OF_SPEECH_WORDS_TABLE);
 
 			if ((int)words.size() == 1)
-				Sentence.Emission[States[i]][Observations[j]] = ((SQLWord *)words[0])->Percentage;
+				Sentence.Emission[(char *)States[i].c_str()][(char *)Observations[j].c_str()] = ((SQLWord *)words[0])->Percentage;
 			else if ((int)words.size() == 0)
-				Sentence.Emission[States[i]][Observations[j]] = 0;
+				Sentence.Emission[(char *)States[i].c_str()][(char *)Observations[j].c_str()] = 0;
 			else
 				return error;
+
+			for (int k = 0; k < (int)words.size(); k++)
+				delete words[k];
 		}
 	}
 
@@ -387,11 +397,14 @@ vector<string> PartOfSpeechTagger::ParseToVector(string input, bool abbreviated 
 		{
 			vector<void *> adjacentWords = this->Query(InsertToString("SELECT * FROM `LanguageData`.`AdjacentWords` WHERE `FirstPartOfSpeechString` = '%s' AND `SecondPartOfSpeechString` = '%s'", States[i].c_str(), States[j].c_str()), PART_OF_SPEECH_ADJACENT_WORDS_TABLE);
 			if ((int)adjacentWords.size() == 1)
-				Sentence.Transition[States[i]][States[j]] = ((SQLAdjacentWord *)adjacentWords[0])->Percentage;
+				Sentence.Transition[(char *)States[i].c_str()][(char *)States[j].c_str()] = ((SQLAdjacentWord *)adjacentWords[0])->Percentage;
 			else if ((int)adjacentWords.size() == 0)
-				Sentence.Transition[States[i]][States[j]] = 0;
+				Sentence.Transition[(char *)States[i].c_str()][(char *)States[j].c_str()] = 0;
 			else
 				return error;
+
+			for (int k = 0; k < (int)adjacentWords.size(); k++)
+				delete adjacentWords[k];
 		}
 	}
 
@@ -400,11 +413,11 @@ vector<string> PartOfSpeechTagger::ParseToVector(string input, bool abbreviated 
 
 	//Run the Viterbi Algorithm to Assign States to Observations
 	vector<string> StateSequence = Sentence.Viterbi(ObservationSequence);
-
+	
 	if (!abbreviated)
 		for (int i = 0; i < (int)StateSequence.size(); i++)
 			StateSequence[i] = this->PartOfSpeech(StateSequence[i]);
-
+	
 	return StateSequence;
 }
 
@@ -427,7 +440,7 @@ void PartOfSpeechTagger::InitializeDatabase(string brownCorpusDirectory)
 
 		//Remove Headings
 		int index = -1;
-		while ((index = fileData.find("-hl", ++index)) != -1)
+		while ((index = (int)fileData.find("-hl", ++index)) != -1)
 			if (fileData[index - 2] == '/' || fileData[index - 3] == '/' || fileData[index - 4] == '/' || fileData[index - 5] == '/')
 			{
 				int tempIndex = index;
@@ -437,24 +450,24 @@ void PartOfSpeechTagger::InitializeDatabase(string brownCorpusDirectory)
 
 		//Remove title designations
 		index = 0;
-		while ((index = fileData.find("-tl", index)) != -1)
+		while ((index = (int)fileData.find("-tl", index)) != -1)
 			fileData.erase(index, 3);
 		index = 0;
-		while ((index = fileData.find("-nc", index)) != -1)
+		while ((index = (int)fileData.find("-nc", index)) != -1)
 			fileData.erase(index, 3);
 
 		//Remove tabs and new lines
 		index = 0;
-		while ((index = fileData.find("\t", index)) != -1)
+		while ((index = (int)fileData.find("\t", index)) != -1)
 			fileData.erase(index, 1);
 		index = 0;
-		while ((index = fileData.find("\n", index)) != -1)
+		while ((index = (int)fileData.find("\n", index)) != -1)
 			fileData.erase(index, 1);
 
 		//Split passage into sentences
 		int firstIndex = -2, secondIndex = 0;
 		vector<string> sentences;
-		while ((secondIndex = fileData.find("/.", firstIndex += 2)) != -1)
+		while ((secondIndex = (int)fileData.find("/.", firstIndex += 2)) != -1)
 		{
 			sentences.push_back(fileData.substr(firstIndex, secondIndex - firstIndex + strlen("/.")));
 			firstIndex = secondIndex;
