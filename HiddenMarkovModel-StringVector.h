@@ -43,6 +43,7 @@ HiddenMarkovModel::HiddenMarkovModel(vector<string> states, vector<string> obser
 {
 	this->States = states;
 	this->Observations = observations;
+	
 	this->Initial = MATRIX1D(States);
 	this->Emission = MATRIX2D(States, Observations);
 	this->Transition = MATRIX2D(States, States);
