@@ -32,7 +32,7 @@ void InitializeDatabase(string brownCorpusDirectory);
 ```C++
 struct FirstWord
 {
-	FirstWord(string);
+	FirstWord(string tag);
 	void IncreaseFrequency();
 
 	string tag;
@@ -41,8 +41,8 @@ struct FirstWord
 
 struct SQLFirstWord
 {
-	SQLFirstWord(int, string, int, float);
-	SQLFirstWord(string, string, string, string);
+	SQLFirstWord(int ID, string PartOfSpeechString, int PartOfSpeechConstant, float Percentage);
+	SQLFirstWord(string ID, string PartOfSpeechString, string PartOfSpeechConstant, string Percentage);
 
 	int ID;
 	string PartOfSpeechString;
@@ -55,7 +55,7 @@ struct SQLFirstWord
 ```C++
 struct Word
 {
-	Word(string, string);
+	Word(string word, string tag);
 	void IncreaseFrequency();
 
 	string word;
@@ -65,8 +65,8 @@ struct Word
 
 struct SQLWord
 {
-	SQLWord(int, string, string, int, float);
-	SQLWord(string, string, string, string, string);
+	SQLWord(int ID, string Word, string PartOfSpeechString, int PartOfSpeechConstant, float Percentage);
+	SQLWord(string ID, string Word, string PartOfSpeechString, string PartOfSpeechConstant, string Percentage);
 
 	int ID;
 	string Word;
@@ -80,7 +80,7 @@ struct SQLWord
 ```C++
 struct AdjacentWord
 {
-	AdjacentWord(string, string);
+	AdjacentWord(string firstTag, string secondTag);
 	void IncreaseFrequency();
 
 	string firsttag;
@@ -90,8 +90,8 @@ struct AdjacentWord
 
 struct SQLAdjacentWord
 {
-	SQLAdjacentWord(int, string, string, int, int, float);
-	SQLAdjacentWord(string, string, string, string, string, string);
+	SQLAdjacentWord(int ID, string FirstPartOfSpeechString, string SecondPartOfSpeechString, int FirstPartOfSpeechConstant, int SecondPartOfSpeechConstant, float Percentage);
+	SQLAdjacentWord(string ID, string FirstPartOfSpeechString, string SecondPartOfSpeechString, string FirstPartOfSpeechConstant, string SecondPartOfSpeechConstant, string Percentage);
 
 	int ID;
 	string FirstPartOfSpeechString;
@@ -104,4 +104,17 @@ struct SQLAdjacentWord
 
 ### Example
 ```C++
+#include "PartOfSpeechTagger.h"
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+	PartOfSpeechTagger tagger;
+
+	cout << tagger.ParseToString("behind the door is a coat rack.", false);
+
+	return 0;
+}
 ```
