@@ -42,7 +42,6 @@ This method simply closes the connection to the database that is opened in the c
 struct FirstWord
 {
 	FirstWord(string tag);
-	void IncreaseFrequency();
 
 	string tag;
 	int frequency;
@@ -68,7 +67,6 @@ Methods are included to make initialization easier by also converting strings to
 struct Word
 {
 	Word(string word, string tag);
-	void IncreaseFrequency();
 
 	string word;
 	string tag;
@@ -96,7 +94,6 @@ Methods are included to make initialization easier by also converting strings to
 struct AdjacentWord
 {
 	AdjacentWord(string firstTag, string secondTag);
-	void IncreaseFrequency();
 
 	string firsttag;
 	string secondtag;
