@@ -10,6 +10,8 @@
 #include <iostream>                         //cout, endl
 #include <fstream>                          //ifstream, ofstream
 
+#pragma comment(lib, "libmysql.lib")
+
 using namespace std;
 
 struct Word
