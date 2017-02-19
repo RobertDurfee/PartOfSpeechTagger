@@ -12,10 +12,44 @@
 
 using namespace std;
 
+struct Word
+{
+	Word(string word, string tag)
+	{
+		this->word = word;
+		this->tag = tag;
+		this->frequency = 1;
+	}
+	void IncreaseFrequency()
+	{
+		this->frequency++;
+	}
+
+
+	string word;
+	string tag;
+	int frequency;
+};
 struct SQLWord
 {
-	SQLWord(int, string, string, int, float);
-	SQLWord(string, string, string, string, string);
+	SQLWord(int ID, string Word, string PartOfSpeechString, int PartOfSpeechConstant, float Percentage)
+	{
+		this->ID = ID;
+		this->Word = Word;
+		this->PartOfSpeechString = PartOfSpeechString;
+		this->PartOfSpeechConstant = PartOfSpeechConstant;
+		this->Percentage = Percentage;
+	}
+	SQLWord(string ID, string Word, string PartOfSpeechString, string PartOfSpeechConstant, string Percentage)
+	{
+		stringstream ss;
+
+		ss << ID; ss >> this->ID; ss.str(""); ss.clear();
+		this->Word = Word;
+		this->PartOfSpeechString = PartOfSpeechString;
+		ss << PartOfSpeechConstant; ss >> this->PartOfSpeechConstant; ss.str(""); ss.clear();
+		ss << Percentage; ss >> this->Percentage;
+	}
 
 	int ID;
 	string Word;
@@ -23,29 +57,45 @@ struct SQLWord
 	int PartOfSpeechConstant;
 	float Percentage;
 };
-SQLWord::SQLWord(int ID, string Word, string PartOfSpeechString, int PartOfSpeechConstant, float Percentage)
-{
-	this->ID = ID;
-	this->Word = Word;
-	this->PartOfSpeechString = PartOfSpeechString;
-	this->PartOfSpeechConstant = PartOfSpeechConstant;
-	this->Percentage = Percentage;
-}
-SQLWord::SQLWord(string ID, string Word, string PartOfSpeechString, string PartOfSpeechConstant, string Percentage)
-{
-	stringstream ss;
 
-	ss << ID; ss >> this->ID; ss.str(""); ss.clear();
-	this->Word = Word;
-	this->PartOfSpeechString = PartOfSpeechString;
-	ss << PartOfSpeechConstant; ss >> this->PartOfSpeechConstant; ss.str(""); ss.clear();
-	ss << Percentage; ss >> this->Percentage;
-}
+struct AdjacentWord
+{
+	AdjacentWord(string firsttag, string secondtag)
+	{
+		this->firsttag = firsttag;
+		this->secondtag = secondtag;
+		this->frequency = 1;
+	}
+	void IncreaseFrequency()
+	{
+		this->frequency++;
+	}
 
+	string firsttag;
+	string secondtag;
+	int frequency;
+};
 struct SQLAdjacentWord
 {
-	SQLAdjacentWord(int, string, string, int, int, float);
-	SQLAdjacentWord(string, string, string, string, string, string);
+	SQLAdjacentWord(int ID, string FirstPartOfSpeechString, string SecondPartOfSpeechString, int FirstPartOfSpeechConstant, int SecondPartOfSpeechConstant, float Percentage)
+	{
+		this->ID = ID;
+		this->FirstPartOfSpeechString = FirstPartOfSpeechString;
+		this->SecondPartOfSpeechString = SecondPartOfSpeechString;
+		this->FirstPartOfSpeechConstant = FirstPartOfSpeechConstant;
+		this->SecondPartOfSpeechConstant = SecondPartOfSpeechConstant;
+		this->Percentage = Percentage;
+	}
+	SQLAdjacentWord(string ID, string FirstPartOfSpeechString, string SecondPartOfSpeechString, string FirstPartOfSpeechConstant, string SecondPartOfSpeechConstant, string Percentage)
+	{
+		stringstream ss;
+		ss << ID; ss >> this->ID; ss.str(""); ss.clear();
+		this->FirstPartOfSpeechString = FirstPartOfSpeechString;
+		this->SecondPartOfSpeechString = SecondPartOfSpeechString;
+		ss << FirstPartOfSpeechConstant; ss >> this->FirstPartOfSpeechConstant; ss.str(""); ss.clear();
+		ss << SecondPartOfSpeechConstant; ss >> this->SecondPartOfSpeechConstant; ss.str(""); ss.clear();
+		ss << Percentage; ss >> this->Percentage;
+	}
 
 	int ID;
 	string FirstPartOfSpeechString;
@@ -54,123 +104,46 @@ struct SQLAdjacentWord
 	int SecondPartOfSpeechConstant;
 	float Percentage;
 };
-SQLAdjacentWord::SQLAdjacentWord(int ID, string FirstPartOfSpeechString, string SecondPartOfSpeechString, int FirstPartOfSpeechConstant, int SecondPartOfSpeechConstant, float Percentage)
-{
-	this->ID = ID;
-	this->FirstPartOfSpeechString = FirstPartOfSpeechString;
-	this->SecondPartOfSpeechString = SecondPartOfSpeechString;
-	this->FirstPartOfSpeechConstant = FirstPartOfSpeechConstant;
-	this->SecondPartOfSpeechConstant = SecondPartOfSpeechConstant;
-	this->Percentage = Percentage;
-}
-SQLAdjacentWord::SQLAdjacentWord(string ID, string FirstPartOfSpeechString, string SecondPartOfSpeechString, string FirstPartOfSpeechConstant, string SecondPartOfSpeechConstant, string Percentage)
-{
-	stringstream ss;
-	ss << ID; ss >> this->ID; ss.str(""); ss.clear();
-	this->FirstPartOfSpeechString = FirstPartOfSpeechString;
-	this->SecondPartOfSpeechString = SecondPartOfSpeechString;
-	ss << FirstPartOfSpeechConstant; ss >> this->FirstPartOfSpeechConstant; ss.str(""); ss.clear();
-	ss << SecondPartOfSpeechConstant; ss >> this->SecondPartOfSpeechConstant; ss.str(""); ss.clear();
-	ss << Percentage; ss >> this->Percentage;
-}
 
+struct FirstWord
+{
+	FirstWord(string tag)
+	{
+		this->tag = tag;
+		this->frequency = 1;
+	}
+	void IncreaseFrequency()
+	{
+		this->frequency++;
+	}
+
+	string tag;
+	int frequency;
+};
 struct SQLFirstWord
 {
-	SQLFirstWord(int, string, int, float);
-	SQLFirstWord(string, string, string, string);
+	SQLFirstWord(int ID, string PartOfSpeechString, int PartOfSpeechConstant, float Percentage)
+	{
+		this->ID = ID;
+		this->PartOfSpeechString = PartOfSpeechString;
+		this->PartOfSpeechConstant = PartOfSpeechConstant;
+		this->Percentage = Percentage;
+	}
+	SQLFirstWord(string ID, string PartOfSpeechString, string PartOfSpeechConstant, string Percentage)
+	{
+		stringstream ss;
+
+		ss << ID; ss >> this->ID; ss.str(""); ss.clear();
+		this->PartOfSpeechString = PartOfSpeechString;
+		ss << PartOfSpeechConstant; ss >> this->PartOfSpeechConstant; ss.str(""); ss.clear();
+		ss << Percentage; ss >> this->Percentage;
+	}
 
 	int ID;
 	string PartOfSpeechString;
 	int PartOfSpeechConstant;
 	float Percentage;
 };
-SQLFirstWord::SQLFirstWord(int ID, string PartOfSpeechString, int PartOfSpeechConstant, float Percentage)
-{
-	this->ID = ID;
-	this->PartOfSpeechString = PartOfSpeechString;
-	this->PartOfSpeechConstant = PartOfSpeechConstant;
-	this->Percentage = Percentage;
-}
-SQLFirstWord::SQLFirstWord(string ID, string PartOfSpeechString, string PartOfSpeechConstant, string Percentage)
-{
-	stringstream ss;
-
-	ss << ID; ss >> this->ID; ss.str(""); ss.clear();
-	this->PartOfSpeechString = PartOfSpeechString;
-	ss << PartOfSpeechConstant; ss >> this->PartOfSpeechConstant; ss.str(""); ss.clear();
-	ss << Percentage; ss >> this->Percentage;
-}
-
-struct TaggedWord
-{
-	TaggedWord(string, string);
-
-	string Word;
-	string Tag;
-};
-TaggedWord::TaggedWord(string Word, string Tag)
-{
-	this->Word = Word;
-	this->Tag = Tag;
-}
-
-struct Word
-{
-	Word(string, string);
-	void IncreaseFrequency();
-
-	string word;
-	string tag;
-	int frequency;
-};
-Word::Word(string word, string tag)
-{
-	this->word = word;
-	this->tag = tag;
-	this->frequency = 1;
-}
-void Word::IncreaseFrequency()
-{
-	this->frequency++;
-}
-
-struct AdjacentWord
-{
-	AdjacentWord(string, string);
-	void IncreaseFrequency();
-
-	string firsttag;
-	string secondtag;
-	int frequency;
-};
-AdjacentWord::AdjacentWord(string firsttag, string secondtag)
-{
-	this->firsttag = firsttag;
-	this->secondtag = secondtag;
-	this->frequency = 1;
-}
-void AdjacentWord::IncreaseFrequency()
-{
-	this->frequency++;
-}
-
-struct FirstWord
-{
-	FirstWord(string);
-	void IncreaseFrequency();
-
-	string tag;
-	int frequency;
-};
-FirstWord::FirstWord(string tag)
-{
-	this->tag = tag;
-	this->frequency = 1;
-}
-void FirstWord::IncreaseFrequency()
-{
-	this->frequency++;
-}
 
 #define PART_OF_SPEECH_WORDS_TABLE			0x1
 #define PART_OF_SPEECH_ADJACENT_WORDS_TABLE 0x2
@@ -348,7 +321,7 @@ vector<string> PartOfSpeechTagger::ParseToVector(string input, bool abbreviated 
 
 void PartOfSpeechTagger::InitializeDatabase(string brownCorpusDirectory)
 {
-	vector<vector<TaggedWord>> TaggedWords;
+	vector<vector<Word>> TaggedWords;
 
 	cout << "(Step 1 of 4) Reading Files..." << endl;
 
@@ -401,7 +374,7 @@ void PartOfSpeechTagger::InitializeDatabase(string brownCorpusDirectory)
 		//Split sentences into words
 		for (int sentence = 0; sentence < (int)sentences.size(); sentence++)
 		{
-			TaggedWords.push_back(vector<TaggedWord>());
+			TaggedWords.push_back(vector<Word>());
 
 			for (int character = 0; character < (int)sentences[sentence].size(); character++)
 				if (sentences[sentence][character] == '/')
@@ -419,7 +392,7 @@ void PartOfSpeechTagger::InitializeDatabase(string brownCorpusDirectory)
 						tempTag.push_back(sentences[sentence][tempIndex++]);
 
 					//Save this as an element in the 'words' vector of vectors
-					TaggedWords[TaggedWords.size() - 1].push_back(TaggedWord(ToLowerCase(CharacterVectorToString(tempWord)), ToLowerCase(CharacterVectorToString(tempTag))));
+					TaggedWords[TaggedWords.size() - 1].push_back(Word(ToLowerCase(CharacterVectorToString(tempWord)), ToLowerCase(CharacterVectorToString(tempTag))));
 				}
 		}
 	}
@@ -435,7 +408,7 @@ void PartOfSpeechTagger::InitializeDatabase(string brownCorpusDirectory)
 		//Loop through all FirstWords
 		for (int z = 0; z < (int)FirstWords.size(); z++)
 			//If this tag appeared before,
-			if (FirstWords[z].tag == TaggedWords[CurrentSentenceIndex][0].Tag)
+			if (FirstWords[z].tag == TaggedWords[CurrentSentenceIndex][0].tag)
 			{
 				//Increase its frequency,
 				FirstWords[z].IncreaseFrequency();
@@ -444,14 +417,14 @@ void PartOfSpeechTagger::InitializeDatabase(string brownCorpusDirectory)
 			}
 
 		//Add the newly encountered FirstWord combination
-		FirstWords.push_back(FirstWord(TaggedWords[CurrentSentenceIndex][0].Tag));
+		FirstWords.push_back(FirstWord(TaggedWords[CurrentSentenceIndex][0].tag));
 
 	SKIP_FIRST_WORD_PUSH_BACK:
 
 		//Loop through all Words
 		for (int z = 0; z < (int)Words.size(); z++)
 			//If this combination appeard before,
-			if (Words[z].word == TaggedWords[CurrentSentenceIndex][0].Word && Words[z].tag == TaggedWords[CurrentSentenceIndex][0].Tag)
+			if (Words[z].word == TaggedWords[CurrentSentenceIndex][0].word && Words[z].tag == TaggedWords[CurrentSentenceIndex][0].tag)
 			{
 				//Increase its frequency,
 				Words[z].IncreaseFrequency();
@@ -460,12 +433,12 @@ void PartOfSpeechTagger::InitializeDatabase(string brownCorpusDirectory)
 			}
 
 		//Add the newly encountered Word combination
-		Words.push_back(Word(TaggedWords[CurrentSentenceIndex][0].Word, TaggedWords[CurrentSentenceIndex][0].Tag));
+		Words.push_back(Word(TaggedWords[CurrentSentenceIndex][0].word, TaggedWords[CurrentSentenceIndex][0].tag));
 
 	SKIP_WORDS_PUSH_BACK_1:
 
 		//Initialize the previous word
-		TaggedWord PreviousWord(TaggedWords[CurrentSentenceIndex][0]);
+		Word PreviousWord(TaggedWords[CurrentSentenceIndex][0]);
 
 		//Loop through all words in the sentence starting at 1 because word 0 has already been added and initialized as previous word
 		for (int CurrentWordIndex = 1; CurrentWordIndex < (int)TaggedWords[CurrentSentenceIndex].size(); CurrentWordIndex++)
@@ -473,7 +446,7 @@ void PartOfSpeechTagger::InitializeDatabase(string brownCorpusDirectory)
 			//Loop through all Words
 			for (int z = 0; z < (int)Words.size(); z++)
 				//If this combination appeared before,
-				if (Words[z].word == TaggedWords[CurrentSentenceIndex][CurrentWordIndex].Word && Words[z].tag == TaggedWords[CurrentSentenceIndex][CurrentWordIndex].Tag)
+				if (Words[z].word == TaggedWords[CurrentSentenceIndex][CurrentWordIndex].word && Words[z].tag == TaggedWords[CurrentSentenceIndex][CurrentWordIndex].tag)
 				{
 					//Increase its frequency,
 					Words[z].IncreaseFrequency();
@@ -482,14 +455,14 @@ void PartOfSpeechTagger::InitializeDatabase(string brownCorpusDirectory)
 				}
 
 			//Add the newly encountered Word combination
-			Words.push_back(Word(TaggedWords[CurrentSentenceIndex][CurrentWordIndex].Word, TaggedWords[CurrentSentenceIndex][CurrentWordIndex].Tag));
+			Words.push_back(Word(TaggedWords[CurrentSentenceIndex][CurrentWordIndex].word, TaggedWords[CurrentSentenceIndex][CurrentWordIndex].tag));
 
 		SKIP_WORDS_PUSH_BACK_2:
 
 			//Loop through all AdjacentWords
 			for (int z = 0; z < (int)AdjacentWords.size(); z++)
 				//If this combination appeared before,
-				if (AdjacentWords[z].firsttag == PreviousWord.Tag && AdjacentWords[z].secondtag == TaggedWords[CurrentSentenceIndex][CurrentWordIndex].Tag)
+				if (AdjacentWords[z].firsttag == PreviousWord.tag && AdjacentWords[z].secondtag == TaggedWords[CurrentSentenceIndex][CurrentWordIndex].tag)
 				{
 					//Increase its frequency,
 					AdjacentWords[z].IncreaseFrequency();
@@ -498,13 +471,13 @@ void PartOfSpeechTagger::InitializeDatabase(string brownCorpusDirectory)
 				}
 
 			//Add the newly encountered AdjacentWords combination
-			AdjacentWords.push_back(AdjacentWord(PreviousWord.Tag, TaggedWords[CurrentSentenceIndex][CurrentWordIndex].Tag));
+			AdjacentWords.push_back(AdjacentWord(PreviousWord.tag, TaggedWords[CurrentSentenceIndex][CurrentWordIndex].tag));
 
 		SKIP_ADJACENT_WORDS_PUSH_BACK:
 
 			//Replace the previous word with the current word
-			PreviousWord.Tag = TaggedWords[CurrentSentenceIndex][CurrentWordIndex].Tag;
-			PreviousWord.Word = TaggedWords[CurrentSentenceIndex][CurrentWordIndex].Word;
+			PreviousWord.tag = TaggedWords[CurrentSentenceIndex][CurrentWordIndex].tag;
+			PreviousWord.word = TaggedWords[CurrentSentenceIndex][CurrentWordIndex].word;
 		}
 	}
 
