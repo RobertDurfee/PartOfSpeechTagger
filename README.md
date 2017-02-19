@@ -61,6 +61,8 @@ struct SQLFirstWord
 ```
 These structures hold the information about the first words of a sentence. The normal version simply contains the part of speech and the frequency in which it occurs in the Brown Corpus. The SQL version also contains an `ID` field supplied through a SQL query, converts the frequency to a percentage of overall occurences, and labels the part of speech by a string and a constant (defined in the `PartOfSpeechConstant` method).
 
+Methods are included to make initialization easier by also converting strings to the corresponding types.
+
 ### Words Structures
 ```C++
 struct Word
@@ -86,6 +88,8 @@ struct SQLWord
 };
 ```
 These structures hold the information about the tag given to an individual word. The normal version simply contains the word, the part of speech, and the frequency in which it occurs in the Brown Corpus. The SQL version also contains an `ID` field supplied through a SQL query, converts frequency to a percentage of overall occurences, and labels the part of speech by a string and a constant (defined in the `PartOfSpeechConstant` method).
+
+Methods are included to make initialization easier by also converting strings to the corresponding types.
 
 ### Adjacent Words Structures
 ```C++
@@ -113,6 +117,8 @@ struct SQLAdjacentWord
 };
 ```
 These structures hold the information about the tags given to two adjacent words. The normal version simply contains the first and second tag and the frequency in which the pair is encountered in the Brown Corpus. The SQL version also contains an `ID` field uspplied through a SQL query, converts the frequency to a percentage of overall occurences, and labels the parts of speech by strings and constants (defined in the `PartOfSpeechConstant` method).
+
+Methods are included to make initialization easier by also converting strings to the corresponding types.
 
 ### Example
 ```C++
