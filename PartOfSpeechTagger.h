@@ -18,11 +18,11 @@ struct Word
 	{
 		this->word = word;
 		this->tag = tag;
-		this->frequency = 1;
+		frequency = 1;
 	}
 	void IncreaseFrequency()
 	{
-		this->frequency++;
+		frequency++;
 	}
 
 
@@ -64,11 +64,11 @@ struct AdjacentWord
 	{
 		this->firsttag = firsttag;
 		this->secondtag = secondtag;
-		this->frequency = 1;
+		frequency = 1;
 	}
 	void IncreaseFrequency()
 	{
-		this->frequency++;
+		frequency++;
 	}
 
 	string firsttag;
@@ -110,11 +110,11 @@ struct FirstWord
 	FirstWord(string tag)
 	{
 		this->tag = tag;
-		this->frequency = 1;
+		frequency = 1;
 	}
 	void IncreaseFrequency()
 	{
-		this->frequency++;
+		frequency++;
 	}
 
 	string tag;
@@ -145,9 +145,9 @@ struct SQLFirstWord
 	float Percentage;
 };
 
-#define PART_OF_SPEECH_WORDS_TABLE			0x1
+#define PART_OF_SPEECH_WORDS_TABLE          0x1
 #define PART_OF_SPEECH_ADJACENT_WORDS_TABLE 0x2
-#define PART_OF_SPEECH_FIRST_WORDS_TABLE	0x3
+#define PART_OF_SPEECH_FIRST_WORDS_TABLE    0x3
 
 class PartOfSpeechTagger
 {
@@ -178,27 +178,27 @@ private:
 
 PartOfSpeechTagger::PartOfSpeechTagger()
 {
-	this->Connect("<CENSORED>", "<CENSORED>", "<CENSORED>");
+	Connect("<CENSORED>", "<CENSORED>", "<CENSORED>");
 }
 PartOfSpeechTagger::PartOfSpeechTagger(string server, string user, string password)
 {
-	this->Connect(server, user, password);
+	Connect(server, user, password);
 }
 PartOfSpeechTagger::PartOfSpeechTagger(string brownCorpusDirectory, string server, string user, string password)
 {
-	this->Connect(server, user, password);
+	Connect(server, user, password);
 
-	this->InitializeDatabase(brownCorpusDirectory);
+	InitializeDatabase(brownCorpusDirectory);
 }
 
 PartOfSpeechTagger::~PartOfSpeechTagger()
 {
-	this->Disconnect();
+	Disconnect();
 }
 
 string PartOfSpeechTagger::ParseToString(string input, bool abbreviated = true)
 {
-	vector<string> StateSequence = this->ParseToVector(input, abbreviated);
+	vector<string> StateSequence = ParseToVector(input, abbreviated);
 
 	//Print the State Sequence
 	stringstream output;
@@ -233,7 +233,7 @@ vector<string> PartOfSpeechTagger::ParseToVector(string input, bool abbreviated 
 	vector<string> States;
 	for (int j = 0; j < (int)ObservationSequence.size(); j++)
 	{
-		vector<void *> words = this->Query(InsertToString("SELECT * FROM `LanguageData`.`Words` WHERE `Word` = '%s'", ObservationSequence[j].c_str()), PART_OF_SPEECH_WORDS_TABLE);
+		vector<void *> words = Query(InsertToString("SELECT * FROM `LanguageData`.`Words` WHERE `Word` = '%s'", ObservationSequence[j].c_str()), PART_OF_SPEECH_WORDS_TABLE);
 		if (words.size() == 0)
 			return error;
 		for (int i = 0; i < (int)words.size(); i++)
@@ -257,7 +257,7 @@ vector<string> PartOfSpeechTagger::ParseToVector(string input, bool abbreviated 
 	//Initialize the Initial Matrix
 	for (int i = 0; i < (int)States.size(); i++)
 	{
-		vector<void *> firstWords = this->Query(InsertToString("SELECT * FROM `LanguageData`.`FirstWords` WHERE `PartOfSpeechString` = '%s'", States[i].c_str()), PART_OF_SPEECH_FIRST_WORDS_TABLE);
+		vector<void *> firstWords = Query(InsertToString("SELECT * FROM `LanguageData`.`FirstWords` WHERE `PartOfSpeechString` = '%s'", States[i].c_str()), PART_OF_SPEECH_FIRST_WORDS_TABLE);
 		if ((int)firstWords.size() == 1)
 			Sentence.Initial[(char *)States[i].c_str()] = ((SQLAdjacentWord *)firstWords[0])->Percentage;
 		else if ((int)firstWords.size() == 0)
@@ -274,7 +274,7 @@ vector<string> PartOfSpeechTagger::ParseToVector(string input, bool abbreviated 
 	{
 		for (int j = 0; j < (int)Observations.size(); j++)
 		{
-			vector<void *> words = this->Query(InsertToString("SELECT * FROM `LanguageData`.`Words` WHERE `PartOfSpeechString` = '%s' AND `Word` = '%s'", States[i].c_str(), Observations[j].c_str()), PART_OF_SPEECH_WORDS_TABLE);
+			vector<void *> words = Query(InsertToString("SELECT * FROM `LanguageData`.`Words` WHERE `PartOfSpeechString` = '%s' AND `Word` = '%s'", States[i].c_str(), Observations[j].c_str()), PART_OF_SPEECH_WORDS_TABLE);
 
 			if ((int)words.size() == 1)
 				Sentence.Emission[(char *)States[i].c_str()][(char *)Observations[j].c_str()] = ((SQLWord *)words[0])->Percentage;
@@ -293,7 +293,7 @@ vector<string> PartOfSpeechTagger::ParseToVector(string input, bool abbreviated 
 	{
 		for (int j = 0; j < (int)States.size(); j++)
 		{
-			vector<void *> adjacentWords = this->Query(InsertToString("SELECT * FROM `LanguageData`.`AdjacentWords` WHERE `FirstPartOfSpeechString` = '%s' AND `SecondPartOfSpeechString` = '%s'", States[i].c_str(), States[j].c_str()), PART_OF_SPEECH_ADJACENT_WORDS_TABLE);
+			vector<void *> adjacentWords = Query(InsertToString("SELECT * FROM `LanguageData`.`AdjacentWords` WHERE `FirstPartOfSpeechString` = '%s' AND `SecondPartOfSpeechString` = '%s'", States[i].c_str(), States[j].c_str()), PART_OF_SPEECH_ADJACENT_WORDS_TABLE);
 			if ((int)adjacentWords.size() == 1)
 				Sentence.Transition[(char *)States[i].c_str()][(char *)States[j].c_str()] = ((SQLAdjacentWord *)adjacentWords[0])->Percentage;
 			else if ((int)adjacentWords.size() == 0)
@@ -314,7 +314,7 @@ vector<string> PartOfSpeechTagger::ParseToVector(string input, bool abbreviated 
 	
 	if (!abbreviated)
 		for (int i = 0; i < (int)StateSequence.size(); i++)
-			StateSequence[i] = this->PartOfSpeech(StateSequence[i]);
+			StateSequence[i] = PartOfSpeech(StateSequence[i]);
 	
 	return StateSequence;
 }
@@ -581,22 +581,22 @@ void PartOfSpeechTagger::InitializeDatabase(string brownCorpusDirectory)
 
 	//Add the data into the SQL database
 	for (int i = 0; i < (int)SQLAdjacentWords.size(); i++)
-		this->Insert((void *)&SQLAdjacentWords[i], PART_OF_SPEECH_ADJACENT_WORDS_TABLE);
+		Insert((void *)&SQLAdjacentWords[i], PART_OF_SPEECH_ADJACENT_WORDS_TABLE);
 	for (int i = 0; i < (int)SQLFirstWords.size(); i++)
-		this->Insert((void *)&SQLFirstWords[i], PART_OF_SPEECH_FIRST_WORDS_TABLE);
+		Insert((void *)&SQLFirstWords[i], PART_OF_SPEECH_FIRST_WORDS_TABLE);
 	for (int i = 0; i < (int)SQLWords.size(); i++)
-		this->Insert((void *)&SQLWords[i], PART_OF_SPEECH_WORDS_TABLE);
+		Insert((void *)&SQLWords[i], PART_OF_SPEECH_WORDS_TABLE);
 }
 
 bool PartOfSpeechTagger::Connect(string server, string user, string password)
 {
-	this->databaseConnectionHandle = mysql_init(NULL);
+	databaseConnectionHandle = mysql_init(NULL);
 
-	return mysql_real_connect(this->databaseConnectionHandle, server.c_str(), user.c_str(), password.c_str(), NULL, 0, NULL, 0) != NULL;
+	return mysql_real_connect(databaseConnectionHandle, server.c_str(), user.c_str(), password.c_str(), NULL, 0, NULL, 0) != NULL;
 }
 void PartOfSpeechTagger::Disconnect()
 {
-	mysql_close(this->databaseConnectionHandle);
+	mysql_close(databaseConnectionHandle);
 }
 
 bool PartOfSpeechTagger::Insert(void * value, int type)
@@ -618,13 +618,13 @@ bool PartOfSpeechTagger::Insert(void * value, int type)
 			return false;
 	}
 
-	return mysql_query(this->databaseConnectionHandle, query.str().c_str()) != false;
+	return mysql_query(databaseConnectionHandle, query.str().c_str()) != false;
 }
 vector<void *> PartOfSpeechTagger::Query(string query, int type)
 {
 	vector<void *> output;
 
-	mysql_query(this->databaseConnectionHandle, query.c_str());
+	mysql_query(databaseConnectionHandle, query.c_str());
 
 	MYSQL_RES * result = mysql_store_result(databaseConnectionHandle);
 
@@ -665,7 +665,7 @@ string PartOfSpeechTagger::PartOfSpeech(string partOfSpeechAbbreviatedString)
 {
 	string PARTS_OF_SPEECH_FULL[0x57] = { "PERIOD", "LEFT_PARENTHESE", "RIGHT_PARENTHESE", "NOT", "DASH", "COMMA", "COLON", "PRE-QUALIFIER", "PRE-QUANTIFIER", "PRE-QUANTIFIER", "POST-DETERMINER", "ARTICLE", "BE", "WERE", "WAS", "BEING", "AM", "BEEN", "ARE", "IS", "COORDINATING_CONJUNCTION", "CARDINAL_NUMERAL", "SUBORDINATING_CONJUNCTION", "DO", "DID", "DOES", "SINGULAR_DETERMINER/QUANTIFIER", "SINGULAR/PLURAL_DETERMINER/QUANTIFIER", "PLURAL_DETERMINER", "DETERMINER/DOUBLE_CONJUNCTION", "EXISTENTIAL_THERE", "FOREIGN_WORD", "HAVE", "HAD", "HAVING", "HAD", "PREPOSITION", "ADJECTIVE", "COMPARATIVE_ADJECTIVE", "SEMANTICALLY_SUPERLATIVE_ADJECTIVE", "MORPHOLOGICALLY_SUPERLATIVE_ADJECTIVE", "MODAL_AUXILIARY", "CITED_WORD", "SINGULAR_NOUN", "POSSESSIVE_SINGULAR_NOUN", "PURAL_NOUN", "POSSESSIVE_PLURAL_NOUN", "PROPER_NOUN", "POSSESSIVE_PROPER_NOUN", "PLURAL_PROPER_NOUN", "POSSESSIVE_PLURAL_PROPER_NOUN", "ADVERBIAL_NOUN", "ORDINAL_NUMERAL", "NOMINAL_PRONOUN", "POSSESSIVE_NOMINAL_PRONOUN", "POSSESSIVE_PERSONAL_PRONOUN", "SECOND_NOMINAL_POSSESSIVE_PRONOUN", "SINGULAR_REFLEXIVE/INTENSIVE_PERSONAL_PRONOUN", "PLURAL_REFLEXIVE/INTENSIVE_PERSONAL_PRONOUN", "OBJECTIVE_PERSONAL_PRONOUN", "THIRD_SINGULAR_NOMINATIVE_PRONOUN", "OTHER_NOMINATIVE_PERSONAL_PRONOUN", "PERSONAL_PRONOUN", "POSSESSIVE_PRONOUN", "QUALIFIER", "POST_QUALIFIER", "ADVERB", "COMPARATIVE_ADVERB", "SUPERLATIVE_ADVERB", "NOMINAL_ADVERB", "ADVERB/PARTICLE", "INFINITIVE_MARKER_TO", "INTERJECTION", "VERB_BASE_FORM", "VERB_PAST_TENSE", "VERB_PRESENT_PARTICIPLE", "VERB_PAST_PARTICIPLE", "VERB_NON_THRID_PERSON_SINGULAR_PRESENT", "VERB_THIRD_SINGULAR_PRESENT", "WH_DETERMINER", "POSSESSIVE_WH_PRONOUN", "OBJECTIVE_WH_PRONOUN", "NOMINATIVE_WH_PRONOUN", "WH_QUALIFIER", "WH_ADVERB", "LEFT_QUOTE", "RIGHT_QUOTE" };
 
-	int constant = this->PartOfSpeechConstant(partOfSpeechAbbreviatedString);
+	int constant = PartOfSpeechConstant(partOfSpeechAbbreviatedString);
 
 	if (constant != -1)
 		return PARTS_OF_SPEECH_FULL[constant];
