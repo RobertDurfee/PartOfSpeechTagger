@@ -20,11 +20,6 @@ struct Word
 		this->tag = tag;
 		frequency = 1;
 	}
-	void IncreaseFrequency()
-	{
-		frequency++;
-	}
-
 
 	string word;
 	string tag;
@@ -65,10 +60,6 @@ struct AdjacentWord
 		this->firsttag = firsttag;
 		this->secondtag = secondtag;
 		frequency = 1;
-	}
-	void IncreaseFrequency()
-	{
-		frequency++;
 	}
 
 	string firsttag;
@@ -111,10 +102,6 @@ struct FirstWord
 	{
 		this->tag = tag;
 		frequency = 1;
-	}
-	void IncreaseFrequency()
-	{
-		frequency++;
 	}
 
 	string tag;
@@ -411,7 +398,7 @@ void PartOfSpeechTagger::InitializeDatabase(string brownCorpusDirectory)
 			if (FirstWords[z].tag == TaggedWords[CurrentSentenceIndex][0].tag)
 			{
 				//Increase its frequency,
-				FirstWords[z].IncreaseFrequency();
+				FirstWords[z].frequency++;
 				//And DO NOT add a duplicate
 				goto SKIP_FIRST_WORD_PUSH_BACK;
 			}
@@ -427,7 +414,7 @@ void PartOfSpeechTagger::InitializeDatabase(string brownCorpusDirectory)
 			if (Words[z].word == TaggedWords[CurrentSentenceIndex][0].word && Words[z].tag == TaggedWords[CurrentSentenceIndex][0].tag)
 			{
 				//Increase its frequency,
-				Words[z].IncreaseFrequency();
+				Words[z].frequency++;
 				//And DO NOT add a duplicate
 				goto SKIP_WORDS_PUSH_BACK_1;
 			}
@@ -449,7 +436,7 @@ void PartOfSpeechTagger::InitializeDatabase(string brownCorpusDirectory)
 				if (Words[z].word == TaggedWords[CurrentSentenceIndex][CurrentWordIndex].word && Words[z].tag == TaggedWords[CurrentSentenceIndex][CurrentWordIndex].tag)
 				{
 					//Increase its frequency,
-					Words[z].IncreaseFrequency();
+					Words[z].frequency++;
 					//And DO NOT add a duplicate
 					goto SKIP_WORDS_PUSH_BACK_2;
 				}
@@ -465,7 +452,7 @@ void PartOfSpeechTagger::InitializeDatabase(string brownCorpusDirectory)
 				if (AdjacentWords[z].firsttag == PreviousWord.tag && AdjacentWords[z].secondtag == TaggedWords[CurrentSentenceIndex][CurrentWordIndex].tag)
 				{
 					//Increase its frequency,
-					AdjacentWords[z].IncreaseFrequency();
+					AdjacentWords[z].frequency++;
 					//And DO NOT add a duplicate
 					goto SKIP_ADJACENT_WORDS_PUSH_BACK;
 				}
