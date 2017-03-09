@@ -222,6 +222,7 @@ vector<string> PartOfSpeechTagger::ParseToVector(string input, bool abbreviated 
 	vector<string> States;
 	for (int j = 0; j < (int)ObservationSequence.size(); j++)
 	{
+		//Vulnerable to SQL Injection
 		vector<void *> words = Query(InsertToString("SELECT * FROM `LanguageData`.`Words` WHERE `Word` = '%s'", ObservationSequence[j].c_str()), PART_OF_SPEECH_WORDS_TABLE);
 		if (words.size() == 0)
 			return error;
@@ -246,6 +247,7 @@ vector<string> PartOfSpeechTagger::ParseToVector(string input, bool abbreviated 
 	//Initialize the Initial Matrix
 	for (int i = 0; i < (int)States.size(); i++)
 	{
+		//Vulnerable to SQL Injection
 		vector<void *> firstWords = Query(InsertToString("SELECT * FROM `LanguageData`.`FirstWords` WHERE `PartOfSpeechString` = '%s'", States[i].c_str()), PART_OF_SPEECH_FIRST_WORDS_TABLE);
 		if ((int)firstWords.size() == 1)
 			Sentence.Initial[(char *)States[i].c_str()] = ((SQLAdjacentWord *)firstWords[0])->Percentage;
@@ -263,6 +265,7 @@ vector<string> PartOfSpeechTagger::ParseToVector(string input, bool abbreviated 
 	{
 		for (int j = 0; j < (int)Observations.size(); j++)
 		{
+			//Vulnerable to SQL Injection
 			vector<void *> words = Query(InsertToString("SELECT * FROM `LanguageData`.`Words` WHERE `PartOfSpeechString` = '%s' AND `Word` = '%s'", States[i].c_str(), Observations[j].c_str()), PART_OF_SPEECH_WORDS_TABLE);
 
 			if ((int)words.size() == 1)
@@ -282,6 +285,7 @@ vector<string> PartOfSpeechTagger::ParseToVector(string input, bool abbreviated 
 	{
 		for (int j = 0; j < (int)States.size(); j++)
 		{
+			//Vulnerable to SQL Injection
 			vector<void *> adjacentWords = Query(InsertToString("SELECT * FROM `LanguageData`.`AdjacentWords` WHERE `FirstPartOfSpeechString` = '%s' AND `SecondPartOfSpeechString` = '%s'", States[i].c_str(), States[j].c_str()), PART_OF_SPEECH_ADJACENT_WORDS_TABLE);
 			if ((int)adjacentWords.size() == 1)
 				Sentence.Transition[(char *)States[i].c_str()][(char *)States[j].c_str()] = ((SQLAdjacentWord *)adjacentWords[0])->Percentage;
