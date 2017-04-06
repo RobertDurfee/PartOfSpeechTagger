@@ -1,6 +1,9 @@
 # PartOfSpeechTagger
 C++ class for parsing English sentences with corresponding parts of speech.
 
+### Disclaimer
+This is not production-worthy code! View this simply as a proof-of-concept. Preconditions are implicit. No error checking exists.
+
 ### Initialization
 ```C++
 PartOfSpeechTagger();
